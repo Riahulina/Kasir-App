@@ -110,7 +110,7 @@ export default function LoginScreen({ onLogin, switchToRegister }: Props) {
           <View style={styles.footer}>
             <Text style={styles.footerText}>Belum punya akun? </Text>
             <TouchableOpacity onPress={switchToRegister}>
-              <Text style={styles.link}>Daftar</Text>
+              <Text style={styles.link}>Pendaftaran pengguna</Text>
             </TouchableOpacity>
           </View>
         </View>

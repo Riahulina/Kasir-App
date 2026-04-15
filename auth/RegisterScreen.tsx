@@ -43,17 +43,17 @@ export default function RegisterScreen({ onRegister, onBackToLogin }: Props) {
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.header}>
-          <Text style={styles.logo}>KasirApp</Text>
+          <Text style={styles.logo}>Pendaftaran</Text>
           <Text style={styles.tagline}>Mulai perjalanan bisnis Anda</Text>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.title}>Daftar Akun</Text>
+        
+          
 
           <View style={[styles.inputContainer, focused === 'name' && styles.focused]}>
             <TextInput
               style={styles.input}
-              placeholder="Nama Lengkap"
+              placeholder="Nama"
               value={name}
               onChangeText={setName}
               autoCapitalize="words"
@@ -90,7 +90,8 @@ export default function RegisterScreen({ onRegister, onBackToLogin }: Props) {
               onBlur={() => setFocused(null)}
             />
           </View>
-
+ <Text style={styles.footerText}>Pastikan data yang anda masukkan adalah benar </Text>
+ <br/>
           <Animated.View style={{ transform: [{ scale: btnScale }] }}>
             <TouchableOpacity
               style={styles.btnPrimary}
@@ -110,7 +111,7 @@ export default function RegisterScreen({ onRegister, onBackToLogin }: Props) {
               <Text style={styles.link}>Masuk</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -121,7 +122,7 @@ const styles = StyleSheet.create({
   // ... copy semua styles dari LoginScreen di atas
   container: { flex: 1, backgroundColor: '#f8f9fc' },
   scroll: { flexGrow: 1, padding: 24, paddingTop: 80 },
-  header: { alignItems: 'center', marginBottom: 48 },
+  header: { alignItems: 'left', marginBottom: 48 },
   logo: { fontSize: 44, fontWeight: '800', color: '#1e293b' },
   tagline: { fontSize: 16, color: '#64748b', marginTop: 8 },
   card: {
@@ -138,9 +139,9 @@ const styles = StyleSheet.create({
   inputContainer: {
     marginBottom: 20,
     borderRadius: 16,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#ffffff',
     borderWidth: 1.5,
-    borderColor: '#e2e8f0',
+    borderColor: '#dfeaf4',
   },
   focused: {
     borderColor: '#6366f1',

@@ -1,0 +1,75 @@
+[
+  {
+    "id": "prod_001",
+    "name": "Nasi Goreng Spesial",
+    "price": 25000,
+    "stock": 50,
+    "category": "Makanan",
+    "description": "Nasi goreng dengan telur, ayam, dan sayuran segar"
+  },
+  {
+    "id": "prod_002",
+    "name": "Ayam Bakar Madu",
+    "price": 32000,
+    "stock": 30,
+    "category": "Makanan",
+    "description": "Ayam bakar dengan bumbu madu khas"
+  },
+  {
+    "id": "prod_003",
+    "name": "Mie Goreng Pedas",
+    "price": 20000,
+    "stock": 40,
+    "category": "Makanan",
+    "description": "Mie goreng dengan level kepedasan pilihan"
+  },
+  {
+    "id": "prod_004",
+    "name": "Es Teh Manis",
+    "price": 8000,
+    "stock": 100,
+    "category": "Minuman",
+    "description": "Teh manis segar dengan es batu"
+  },
+  {
+    "id": "prod_005",
+    "name": "Es Jeruk Peras",
+    "price": 12000,
+    "stock": 80,
+    "category": "Minuman",
+    "description": "Jeruk peras segar tanpa pemanis buatan"
+  },
+  {
+    "id": "prod_006",
+    "name": "Jus Alpukat",
+    "price": 18000,
+    "stock": 25,
+    "category": "Minuman",
+    "description": "Jus alpukat creamy dengan susu coklat"
+  },
+  {
+    "id": "prod_007",
+    "name": "Keripik Singkong",
+    "price": 12000,
+    "stock": 60,
+    "category": "Snack",
+    "description": "Keripik singkong renyah aneka rasa"
+  },
+  {
+    "id": "prod_008",
+    "name": "Pisang Goreng Crispy",
+    "price": 8000,
+    "stock": 45,
+    "category": "Snack",
+    "description": "Pisang goreng dengan tepung crispy"
+  },
+  {
+    "id": "prod_011",
+    "name": "Kaos Polos Premium",
+    "price": 75000,
+    "stock": 20,
+    "category": "Pakaian",
+    "description": "Kaos katun combed 30s"
+  }
+
+]
