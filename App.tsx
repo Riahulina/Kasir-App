@@ -1,167 +1,162 @@
-// App.tsx
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Platform, Alert } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import LoginScreen from './auth/LoginScreen';
-import RegisterScreen from './auth/RegisterScreen';
+import LoginScreen       from './auth/LoginScreen';
+import RegisterScreen    from './auth/RegisterScreen';
+import ForgotPasswordScreen from './auth/ForgotPasswordScreen';
 import ProfileSetupScreen from './auth/ProfileSetupScreen';
-import HomeScreen from './auth/HomeScreen';
+import HomeScreen        from './auth/HomeScreen';
 
-const USERS_KEY = '@kasirapp_users';
+const USERS_KEY   = '@kasirapp_users';
+const SESSION_KEY = '@kasirapp_session';
+
+type Screen = 'login' | 'register' | 'forgot' | 'setup' | 'home';
 
 type UserData = {
-  name: string;
-  email: string;
-  password: string;
-  namaToko?: string;
-  alamat?: string;
-  telepon?: string;
-  isProfileComplete?: boolean;
+  name: string; email: string; password: string;
+  namaToko?: string; alamat?: string; telepon?: string;
+  kota?: string; kodePos?: string; kategoriUsaha?: string;
+  deskripsiToko?: string; isProfileComplete?: boolean;
 };
 
 export default function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
-  const [showRegister, setShowRegister] = useState(false);
-  const [users, setUsers] = useState<Record<string, UserData>>({});
+  const [screen,       setScreen]       = useState<Screen>('login');
+  const [users,        setUsers]        = useState<Record<string, UserData>>({});
+  const [currentEmail, setCurrentEmail] = useState<string | null>(null);
+  const [booting,      setBooting]      = useState(true);
 
+  // ── Boot: cek sesi tersimpan ──────────────────────────────────────────────
   useEffect(() => {
-    const loadUsers = async () => {
+    (async () => {
       try {
-        const jsonValue = await AsyncStorage.getItem(USERS_KEY);
-        if (jsonValue) {
-          const parsed = JSON.parse(jsonValue);
-          console.log('Data dimuat dari AsyncStorage:', parsed);
-          setUsers(parsed);
+        const [usersJson, sessionEmail] = await Promise.all([
+          AsyncStorage.getItem(USERS_KEY),
+          AsyncStorage.getItem(SESSION_KEY),
+        ]);
+        const loadedUsers: Record<string, UserData> = usersJson ? JSON.parse(usersJson) : {};
+        setUsers(loadedUsers);
+        if (sessionEmail && loadedUsers[sessionEmail]) {
+          setCurrentEmail(sessionEmail);
+          setScreen(loadedUsers[sessionEmail].isProfileComplete ? 'home' : 'setup');
         }
       } catch (e) {
-        console.error('Gagal memuat data:', e);
+        console.error('[App] boot error:', e);
+      } finally {
+        setBooting(false);
       }
-    };
-    loadUsers();
+    })();
   }, []);
 
-  const saveUsers = async (newUsers: typeof users) => {
-    try {
-      await AsyncStorage.setItem(USERS_KEY, JSON.stringify(newUsers));
-      console.log('Data disimpan ke AsyncStorage');
-    } catch (e) {
-      console.error('Gagal menyimpan:', e);
-    }
+  const saveUsers = async (u: Record<string, UserData>) => {
+    try { await AsyncStorage.setItem(USERS_KEY, JSON.stringify(u)); }
+    catch (e) { console.error('[App] saveUsers error:', e); }
   };
 
-  const handleRegister = (name: string, email: string, password: string) => {
-    const trimmedEmail = email.trim().toLowerCase();
-    if (users[trimmedEmail]) {
+  // ── Register ──────────────────────────────────────────────────────────────
+  const handleRegister = (name: string, email: string, password: string): boolean => {
+    const key = email.trim().toLowerCase();
+    if (users[key]) {
       Alert.alert('Gagal', 'Email sudah terdaftar');
       return false;
     }
-
-    const newUser: UserData = {
-      name: name.trim(),
-      email: trimmedEmail,
-      password,
-      isProfileComplete: false,
-    };
-
-    const updatedUsers = { ...users, [trimmedEmail]: newUser };
-    setUsers(updatedUsers);
-    saveUsers(updatedUsers);
-
-    setCurrentUserEmail(trimmedEmail);
-    setIsLoggedIn(true);
-
-    Alert.alert(
-      'Pendaftaran Berhasil',
-      'Akun berhasil dibuat! Silakan lengkapi profil toko Anda.',
-      [{ text: 'OK' }]
-    );
-
+    const newUser: UserData = { name: name.trim(), email: key, password, isProfileComplete: false };
+    const updated = { ...users, [key]: newUser };
+    setUsers(updated);
+    saveUsers(updated);
+    setCurrentEmail(key);
+    AsyncStorage.setItem(SESSION_KEY, key).catch(console.error);
+    setScreen('setup');
     return true;
   };
 
-  const handleLogin = (email: string, password: string) => {
-    const trimmedEmail = email.trim().toLowerCase();
-
-    if (!users[trimmedEmail]) {
-      Alert.alert('Gagal', 'Akun tidak ditemukan. Silakan daftar terlebih dahulu.');
-      return false;
-    }
-
-    if (users[trimmedEmail].password !== password) {
-      Alert.alert('Gagal', 'Password salah');
-      return false;
-    }
-
-    setCurrentUserEmail(trimmedEmail);
-    setIsLoggedIn(true);
-
-    Alert.alert(
-      'Login Berhasil',
-      `Selamat datang kembali, ${users[trimmedEmail].name}!`,
-      [{ text: 'OK' }]
-    );
-
+  // ── Login ─────────────────────────────────────────────────────────────────
+  const handleLogin = (email: string, password: string): boolean => {
+    const key = email.trim().toLowerCase();
+    if (!users[key]) return false;
+    if (users[key].password !== password) return false;
+    setCurrentEmail(key);
+    AsyncStorage.setItem(SESSION_KEY, key).catch(console.error);
+    setScreen(users[key].isProfileComplete ? 'home' : 'setup');
     return true;
   };
 
+  // ── Profile setup selesai ─────────────────────────────────────────────────
   const handleProfileComplete = (updates: Partial<UserData>) => {
-    if (!currentUserEmail) return;
-
-    const updatedUser = {
-      ...users[currentUserEmail],
-      ...updates,
-      isProfileComplete: true,
+    if (!currentEmail) return;
+    const updated = {
+      ...users,
+      [currentEmail]: { ...users[currentEmail], ...updates, isProfileComplete: true },
     };
-
-    const updatedUsers = { ...users, [currentUserEmail]: updatedUser };
-    setUsers(updatedUsers);
-    saveUsers(updatedUsers);
-
-    Alert.alert('Sukses', 'Profil toko telah dilengkapi. Selamat datang di beranda!');
+    setUsers(updated);
+    saveUsers(updated);
+    setScreen('home');
   };
 
-  const currentUser = currentUserEmail ? users[currentUserEmail] : null;
+  // ── Update user (dari ProfileScreen) ─────────────────────────────────────
+  const handleUpdateUser = (updatedUser: Partial<UserData>) => {
+    if (!currentEmail) return;
+    const updated = { ...users, [currentEmail]: { ...users[currentEmail], ...updatedUser } };
+    setUsers(updated);
+    saveUsers(updated);
+  };
 
-  if (!isLoggedIn) {
+  // ── Logout ────────────────────────────────────────────────────────────────
+  const handleLogout = async () => {
+    try { await AsyncStorage.removeItem(SESSION_KEY); } catch {}
+    setCurrentEmail(null);
+    setScreen('login');
+  };
+
+  // ── Loading ───────────────────────────────────────────────────────────────
+  if (booting) {
     return (
-      <View style={styles.container}>
-        {showRegister ? (
-          <RegisterScreen onRegister={handleRegister} onBackToLogin={() => setShowRegister(false)} />
-        ) : (
-          <LoginScreen onLogin={handleLogin} switchToRegister={() => setShowRegister(true)} />
-        )}
-        {Platform.OS !== 'web' && <StatusBar style="dark" />}
+      <View style={styles.loading}>
+        <ActivityIndicator size="large" color="#6366f1" />
       </View>
     );
   }
 
-  if (currentUser && !currentUser.isProfileComplete) {
-    return (
-      <ProfileSetupScreen
-        user={currentUser}
-        onComplete={handleProfileComplete}
-        onLogout={() => {
-          setIsLoggedIn(false);
-          setCurrentUserEmail(null);
-        }}
-      />
-    );
-  }
+  const currentUser = currentEmail ? users[currentEmail] : null;
 
-  return currentUser ? (
-    <HomeScreen
-      user={currentUser}
-      onLogout={() => {
-        setIsLoggedIn(false);
-        setCurrentUserEmail(null);
-      }}
-    />
-  ) : null;
+  switch (screen) {
+    case 'login':
+      return <LoginScreen
+        onLogin={handleLogin}
+        switchToRegister={() => setScreen('register')}
+        switchToForgot={() => setScreen('forgot')}
+      />;
+
+    case 'register':
+      return <RegisterScreen
+        onRegister={handleRegister}
+        onBackToLogin={() => setScreen('login')}
+      />;
+
+    case 'forgot':
+      return <ForgotPasswordScreen onBack={() => setScreen('login')} />;
+
+    case 'setup':
+      return currentUser ? (
+        <ProfileSetupScreen
+          user={currentUser}
+          onComplete={handleProfileComplete}
+          onLogout={handleLogout}
+        />
+      ) : null;
+
+    case 'home':
+      return currentUser ? (
+        <HomeScreen
+          user={currentUser}
+          onLogout={handleLogout}
+          onUpdateUser={handleUpdateUser}
+        />
+      ) : null;
+  }
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8f9fc' },
-}); 
+  loading: { flex:1, alignItems:'center', justifyContent:'center', backgroundColor:'#312e81' },
+});

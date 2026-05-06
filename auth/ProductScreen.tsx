@@ -70,7 +70,9 @@ const generateId = () => 'prod_' + Date.now().toString(36) + Math.random().toStr
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function ProductScreen({ onBack }: Props) {
+  
   const [products, setProducts] = useState<Product[]>([]);
+   
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
@@ -94,6 +96,7 @@ export default function ProductScreen({ onBack }: Props) {
     loadProducts();
   }, []);
 
+  // async storage : Penyimpanan Permanen 
   const loadProducts = async () => {
     try {
       const json = await AsyncStorage.getItem(STORAGE_KEY);
@@ -167,7 +170,9 @@ export default function ProductScreen({ onBack }: Props) {
 
   // ── CRUD ──────────────────────────────────────────────────────────────────
   const handleSave = () => {
+    //1. valdasi form
     if (!formName.trim()) { Alert.alert('Perhatian', 'Nama produk wajib diisi'); return; }
+
     if (!formPrice.trim() || isNaN(Number(formPrice)) || Number(formPrice) < 0) {
       Alert.alert('Perhatian', 'Harga tidak valid'); return;
     }
@@ -175,6 +180,7 @@ export default function ProductScreen({ onBack }: Props) {
       Alert.alert('Perhatian', 'Stok tidak valid'); return;
     }
 
+    //2. pengecekan apakah mode edit atau tambah baru
     if (editingProduct) {
       const updated = products.map(p =>
         p.id === editingProduct.id
@@ -392,9 +398,9 @@ export default function ProductScreen({ onBack }: Props) {
       </ScrollView>
 
       {/* ── FAB ── */}
-      <TouchableOpacity style={styles.fab} onPress={() => openModal()} activeOpacity={0.85}>
-        <Ionicons name="add" size={28} color="#fff" />
-      </TouchableOpacity>
+      {/* <TouchableOpacity style={styles.fab} onPress={() => openModal()} activeOpacity={0.85}>
+        <Ionicons name="add" size={28} color="#ffffff" />
+      </TouchableOpacity> */}
 
       {/* ══ MODAL TAMBAH / EDIT ══════════════════════════════════════════════ */}
       <Modal visible={modalVisible} transparent animationType="none" onRequestClose={closeModal}>
@@ -784,7 +790,7 @@ const styles = StyleSheet.create({
   },
 
   fab: {
-    position: 'absolute', bottom: 28, right: 24,
+    position: 'absolute', bottom: 70, right: 24,
     width: 60, height: 60, borderRadius: 20,
     backgroundColor: '#6366f1', alignItems: 'center', justifyContent: 'center',
     shadowColor: '#6366f1', shadowOffset: { width: 0, height: 8 },
