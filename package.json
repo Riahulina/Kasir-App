@@ -25,6 +25,7 @@
     "expo-image-picker": "~55.0.18",
     "expo-status-bar": "~55.0.5",
     "expo-system-ui": "~55.0.15",
+    "firebase": "^12.12.1",
     "fs-extra": "^11.3.4",
     "react": "19.2.0",
     "react-dom": "19.2.0",

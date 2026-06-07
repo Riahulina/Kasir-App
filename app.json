@@ -13,7 +13,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.abrahamtarigan.KasirApp"
+      "bundleIdentifier": "com.riah.kasirapp"
     },
     "android": {
       "adaptiveIcon": {
@@ -24,7 +24,8 @@
       },
       "package": "com.abrahamtarigan.KasirApp",
       "softwareKeyboardLayoutMode": "pan",
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": ["android.permission.RECORD_AUDIO"]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -46,8 +47,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "c136dbed-956c-4272-b5a0-6ccd20b9a1ce"
+        "projectId": "08a737ba-e252-4180-a341-87b4162eb28d"
       }
-    }
+    },
+    "owner": "riah-ulina"
   }
 }
